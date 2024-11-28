@@ -1,25 +1,20 @@
-# Robust-hatememe-detection
+# Misogyny-Post-detection
 
 This is the official repo of our paper entitled 
 
-### HateProof: Are Hateful Meme Detection Systems really Robust?
+### Detecting Misogynistic Posts on Social Media using a Robust Multimodal Framework: Integrating ResNet, RoBERTa, and Graph Attention Networks 
 
 Requirements:
 
-To replicate the experiments, two separate environments are required.
-
-For model ROBERTA+RESNET and Contrastive Learning models, following command can be used to create the environment:
+To replicate the experiments,  environments are required.
 
 ```conda create --name <env> --file environments/requirements_fusion.txt```
 
-For VISUALBERT and UNITER, please use following command:
+#### DATASET
+For the MAMI dataset, The data may be distributed upon request and for academic purposes only. To request the datasets, please fill out the following form: https://forms.gle/AGWMiGicBHiQx4q98
 
-```conda create --name <env> --file environments/requirements_prefused.txt```
+After submitting the required info, participants will have a link to a folder containing the datasets in a zip format (trial, training and development) and the password to uncompress the files.
 
-For VILLA model, Docker container need to be created.
+#### UTILS
 
-
-TBD
-
-How to Contribute
-If you have proposed a new robustness evaluation system, please fork this repository and raise pull request and then you can add it into this framework to evaluate. If there are any comments or problems, feel free to open an issue and ask us.
+The utils folder contains the code to process the data from the MAMI dataset to be easily used for training, validation and testing.
