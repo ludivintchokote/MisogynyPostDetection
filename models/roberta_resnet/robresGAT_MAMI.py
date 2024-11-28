@@ -31,7 +31,7 @@ warnings.filterwarnings("ignore")
 TOKENIZER = RobertaTokenizer.from_pretrained('roberta-base')
 DROPOUT = 0.2
 HIDDEN_SIZE = 128 #128
-BATCH_SIZE = 16 #7 #16 #8
+BATCH_SIZE = 10  #9
 NUM_LABELS = 2
 NUM_EPOCHS = 7 #30 20 #50
 EARLY_STOPPING = {"patience": 30, "delta": 0.005}
