@@ -1,5 +1,4 @@
 import math
-
 import pandas as pd
 import os
 import numpy as np
@@ -224,8 +223,7 @@ def get_torch_dataloaders(dataset_name, global_path):
 
 def main():
     global_path = '../datasets'
-    datasets = ['fb']
-    #     datasets = ['mami']
+    datasets = ['mami']
     device = torch.device("cuda" if torch.cuda.is_available() else "cpu")
     for dataset_name in datasets:
         train_dataloader, dev_dataloader, test_dataloader = get_torch_dataloaders(dataset_name, global_path)
@@ -238,7 +236,7 @@ def main():
                     len(train_dataloader) * BATCH_SIZE * NUM_EPOCHS))
         print(" Start Training on, ", dataset_name, len(train_dataloader), len(dev_dataloader), len(test_dataloader))
 
-        checkpoint = torch.load('saved/' + 'fb' + '_random' + '.pth')
+        checkpoint = torch.load('saved/' + 'mami' + '_random' + '.pth')
         model.load_state_dict(checkpoint['model_state_dict'], state_dict)
 
         max_acc = 0
