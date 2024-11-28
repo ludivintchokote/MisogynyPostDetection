@@ -70,51 +70,80 @@ def speckle(image):
 
 class CNN_roberta_Classifier(nn.Module):
     def __init__(self, vis_out, input_len, dropout, hidden_size, num_labels):
-        super(CNN_roberta_Classifier,self).__init__()
+        super(CNN_roberta_Classifier, self).__init__()
         self.lm = RobertaModel.from_pretrained('roberta-base')
-#         self.lm = BertModel.from_pretrained('bert-base-uncased')
         self.vm = models.resnet50(pretrained=True)
-        self.vm.fc = nn.Sequential(nn.Linear(vis_out,input_len))
-#         self.vm = models.efficientnet_b5(pretrained=True)
-#         self.vmlp = nn.Linear(vis_out,input_len)
-#         print(self.vm)
-        
+        self.vm.fc = nn.Sequential(nn.Linear(vis_out, input_len))
+
         embed_dim = input_len
         self.merge = torch.nn.Sequential(torch.nn.ReLU(),
-            torch.nn.Linear(2 * embed_dim, 2 * embed_dim),
-            torch.nn.ReLU(),
-            torch.nn.Linear(2 * embed_dim, embed_dim))
-        self.mlp =  nn.Sequential(nn.Linear(input_len, hidden_size),
-                                      nn.ReLU(),
-                                      nn.Linear(hidden_size, hidden_size),
-                                      nn.ReLU(),
-                                      nn.Linear(hidden_size, num_labels))
-        self.image_space = nn.Sequential(nn.Linear(input_len, input_len),
-                                      nn.ReLU(),
-                                      nn.Linear(input_len, input_len),
-                                      nn.ReLU(),
-                                      nn.Linear(input_len, input_len))
-        self.text_space = nn.Sequential(nn.Linear(input_len, input_len),
-                                      nn.ReLU(),
-                                      nn.Linear(input_len, input_len),
-                                      nn.ReLU(),
-                                      nn.Linear(input_len, input_len))
-        
+                                         torch.nn.Linear(2 * embed_dim, 2 * embed_dim),
+                                         torch.nn.ReLU(),
+                                         torch.nn.Linear(2 * embed_dim, embed_dim))
 
-        
+        # self.gat = GraphAttentionLayer(8, embed_dim)
+        self.gat = GraphAttentionLayer(16, embed_dim)
+
+        self.mlp = nn.Sequential(nn.Linear(input_len, hidden_size),
+                                 nn.ReLU(),
+                                 nn.Linear(hidden_size, hidden_size),
+                                 nn.ReLU(),
+                                 nn.Linear(hidden_size, num_labels))
+
+        self.image_space = nn.Sequential(nn.Linear(input_len, input_len),
+                                         nn.ReLU(),
+                                         nn.Linear(input_len, input_len),
+                                         nn.ReLU(),
+                                         nn.Linear(input_len, input_len))
+
+        self.text_space = nn.Sequential(nn.Linear(input_len, input_len),
+                                        nn.ReLU(),
+                                        nn.Linear(input_len, input_len),
+                                        nn.ReLU(),
+                                        nn.Linear(input_len, input_len))
+
     def forward(self, image, text, label):
-#         img_cls, image_prev = self.vm(image)
-#         image = self.vmlp(image_prev)
         image = self.vm(image)
-        text = self.lm(**text).last_hidden_state[:,0,:]
-        image_shifted = image
-        text_shifted = text
-        img_txt = (image,text)
+        text = self.lm(**text).last_hidden_state
+        text_gat = self.gat(text)
+        text_gat = text_gat[:, 0, :]
+        img_txt = (image, text_gat)
         img_txt = torch.cat(img_txt, dim=1)
         merged = self.merge(img_txt)
         label_output = self.mlp(merged)
-        return label_output, merged, image_shifted, text_shifted
-    
+        return label_output, merged, image, text_gat
+
+
+class GraphAttentionLayer(nn.Module):
+    def __init__(self, num_heads, hidden_size):
+        super(GraphAttentionLayer, self).__init__()
+        self.num_heads = num_heads
+        self.hidden_size = hidden_size
+        self.query_linear = nn.Linear(hidden_size, hidden_size)
+        self.key_linear = nn.Linear(hidden_size, hidden_size)
+        self.value_linear = nn.Linear(hidden_size, hidden_size)
+        # self.dropout = nn.Dropout(0.1)
+        self.dropout = nn.Dropout(0.2)
+
+    def forward(self, x):
+        batch_size, seq_len, hidden_size = x.size()
+
+        # Compute Q, K, V
+        query = self.query_linear(x)  # [batch_size, seq_len, hidden_size]
+        key = self.key_linear(x)  # [batch_size, seq_len, hidden_size]
+        value = self.value_linear(x)  # [batch_size, seq_len, hidden_size]
+
+        # Compute attention scores
+        # [batch_size, seq_len, seq_len]
+        attention_scores = torch.bmm(query, key.transpose(1, 2)) / math.sqrt(self.hidden_size)
+
+        attention_scores = self.dropout(attention_scores)
+        attention_weights = F.softmax(attention_scores, dim=-1)
+
+        # [batch_size, seq_len, hidden_size]
+        output = torch.bmm(attention_weights, value)
+
+        return output
 
 
 # def validation(dl,model):
@@ -178,10 +207,10 @@ def get_torch_dataloaders(dataset_name,global_path, imga, texta):
 def main():
     import sys
     global_path = '../datasets'
-    attacks = ['spread_1','spread_3','newsprint','s&p','s&p0.4','blur_text_5','s&p_text_0.2' , 'with_sp_5px', 'without_sp_5px']
-    clean_attack_names = {'ocr':'orig_ocr', 's&p0.4':'s&p_0.4'}
-    dict_zero_shot = {}
-    dataset_name = 'fb'
+    # attacks = ['spread_1','spread_3','newsprint','s&p','s&p0.4','blur_text_5','s&p_text_0.2' , 'with_sp_5px', 'without_sp_5px']
+    # clean_attack_names = {'ocr':'orig_ocr', 's&p0.4':'s&p_0.4'}
+    # dict_zero_shot = {}
+    dataset_name = 'mami'
     dict_text_adv = {}
     dict_adv = {}
     f = open('../../attack_results_contrastive.tsv', 'a')
