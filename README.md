@@ -19,3 +19,7 @@ After submitting the required info, participants will have a link to a folder co
 
 The utils folder contains the code to process the data from the MAMI dataset to be easily used for training, validation and testing.
 
+#### RESULTS
+
+The preds folder contains the predictions of our model on the test set for human level judgment
+
