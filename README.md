@@ -24,3 +24,5 @@ The utils folder contains the code to process the data from the MAMI dataset to 
 The preds folder contains the predictions of our model on the test set for human level judgment.
 The report folder contains the report of training the model as well as its perfomance on the validation dataset.
 
+#### DOI Link
+https://doi.org/10.5281/zenodo.14246012
