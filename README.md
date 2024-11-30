@@ -21,19 +21,20 @@ Download the images from the dataset and place it in the 'dataset' directory
 #### PRE-RUN
 
 Our model will be provided upon request for testing.
-After downloading the model and save in the "saved" folder
+After downloading the model,save it in the "saved" folder following the file structure below
 ```
 └───saved
      └───mami_random98.pth
 └───dataloader_adv_train.py
-└───...
+└───Preds
 └───robresGAT_MAMI.py
-└───...
+└───testing.py
 ```
 
 #### RUN
 
 Run the robresGAT_MAMI.py file to execute the project
+Run the testing.py file to test the model in the saved path.
 
 #### RESULTS
 
