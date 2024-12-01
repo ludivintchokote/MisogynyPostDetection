@@ -36,7 +36,7 @@ Download the images from the dataset and place it in the 'dataset' directory.
 
 #### PRE-RUN
 
-Our model will be provided upon request for testing.
+Our model will be provided upon request for testing and evaluation.
 After downloading the model,save it in the "saved" folder following the file structure below
 ```
 └───saved
